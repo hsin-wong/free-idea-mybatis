@@ -70,5 +70,8 @@
         <intentionAction order="first">
             <className>com.wuzhizhan.mybatis.intention.GenerateMapperIntention</className>
         </intentionAction>
+        <intentionAction>
+            <className>com.wuzhizhan.mybatis.intention.MyBatisGeneratorIntention</className>
+        </intentionAction>
     </extensions>
 </idea-plugin>
