@@ -1,8 +1,11 @@
 package com.wuzhizhan.mybatis.intention;
 
 import com.intellij.codeInsight.intention.IntentionAction;
+import com.intellij.notification.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nls;
@@ -20,19 +23,24 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author hsin
+ *
+ * mybatis generator intention
+ */
 public class MyBatisGeneratorIntention implements IntentionAction {
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
     @Override
     public String getText() {
-        return "Generator";
+        return "MyBatis generator";
     }
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
     @Override
     public String getFamilyName() {
-        return "Generator";
+        return "MyBatis";
     }
 
     @Override
@@ -63,12 +71,25 @@ public class MyBatisGeneratorIntention implements IntentionAction {
             MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
             myBatisGenerator.generate(null);
             for (String warning: warnings){
-                System.out.println(warning);
+                showMyMessage(warning, NotificationType.WARNING);
             }
 
         } catch (SQLException | IOException | InterruptedException | InvalidConfigurationException | XMLParserException e) {
-            e.printStackTrace();
+            showMyMessage(e.getMessage(), NotificationType.ERROR);
+        }catch (Exception e){
+            showMyMessage(e.getMessage(), NotificationType.ERROR);
         }
+    }
+
+    public static final NotificationGroup GROUP_DISPLAY_ID_INFO =
+            new NotificationGroup("MyBatis group",
+                    NotificationDisplayType.BALLOON, true);
+    void showMyMessage(String message, NotificationType type) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+                Notification notification = GROUP_DISPLAY_ID_INFO.createNotification(message, type);
+                Project[] projects = ProjectManager.getInstance().getOpenProjects();
+                Notifications.Bus.notify(notification, projects[0]);
+        });
     }
 
     @Override
