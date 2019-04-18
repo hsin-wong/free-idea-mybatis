@@ -7,6 +7,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +31,7 @@ import java.util.List;
  * mybatis generator intention
  */
 public class MyBatisGeneratorIntention implements IntentionAction {
+    private static final String ROOT_TAG_NAME = "generatorConfiguration";
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
     @Override
@@ -45,7 +48,14 @@ public class MyBatisGeneratorIntention implements IntentionAction {
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-        return true;
+        if(file instanceof XmlFile){
+            XmlFile xmlFile = (XmlFile)file;
+            XmlTag root = xmlFile.getRootTag();
+            if(null != root && ROOT_TAG_NAME.equals(root.getName())){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
